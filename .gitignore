@@ -1,4 +1,8 @@
 /BubbleGum
 /Ducttape
+/HelloWorld/*
+!app/build/outputs/apk/debug/app-debug.apk
 *.json
 *.iso
+*.env
+*.log
