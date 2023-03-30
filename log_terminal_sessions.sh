@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 ####
 # file: log_terminal_sessions.sh
@@ -20,7 +21,7 @@ if [ "$answer" == "y" ] || [ "$answer" == "Y" ]; then
         # save a copy of bashrc to the log folder
         log_directory="$HOME/Pegboard/BubbleGum/log_folder"
         mkdir -p "$log_directory"
-        cp "${HOME}/.bashrc" "${log_directory}/bashrc_$(date '+%Y-%m-%d_%H:%M:%S').txt"
+        cp "$I just finished getting my git repo set up.  I set the gitignore as well.  I have it ignoring 2 folders, *.json *.iso{HOME}/.bashrc" "${log_directory}/bashrc_$(date '+%Y-%m-%d_%H:%M:%S').txt"
         echo "bashrc file saved to the log folder."
     else
         echo "Script already added to startup."
