@@ -7,10 +7,11 @@ set -euo pipefail
 # created: 3/29/2023
 # revised: 3/29/2023
 # reminder: chmod +x log_terminal_sessions.sh
+# warning: This script hasn't been tested on a blank slate yet.
 # This script sets up logging for terminal for a set directory and asks if you want to add to startup
 
 
-echo "Do you want to add this script to startup? (y/n)"
+echo "Do you want to log Pegboard? (y/n)"
 read answer
 
 if [ "$answer" == "y" ] || [ "$answer" == "Y" ]; then
@@ -21,7 +22,7 @@ if [ "$answer" == "y" ] || [ "$answer" == "Y" ]; then
         # save a copy of bashrc to the log folder
         log_directory="$HOME/Pegboard/BubbleGum/log_folder"
         mkdir -p "$log_directory"
-        cp "$I just finished getting my git repo set up.  I set the gitignore as well.  I have it ignoring 2 folders, *.json *.iso{HOME}/.bashrc" "${log_directory}/bashrc_$(date '+%Y-%m-%d_%H:%M:%S').txt"
+        cp "${HOME}/.bashrc" "${log_directory}/bashrc_$(date '+%Y-%m-%d_%H:%M:%S').txt"
         echo "bashrc file saved to the log folder."
     else
         echo "Script already added to startup."
