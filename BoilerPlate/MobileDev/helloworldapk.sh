@@ -27,3 +27,7 @@ echo -e "import React from 'react';\nimport { StyleSheet, Text, View } from 'rea
 
 # Build an unsigned APK file
 cd android && ./gradlew assembleDebug
+
+# Move the APK file to the desired directory
+mkdir -p "${HOME}/Pegboard/BoilerPlate/MobileDev/HelloWorld"
+mv app/build/outputs/apk/debug/app-debug.apk "${HOME}/Pegboard/BoilerPlate/MobileDev/HelloWorld"
