@@ -28,4 +28,46 @@ yyy
 Script already added to startup.
 Script already added to startup.
 Script already added to startup.
-]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard[?2004h[?2004h[?2004h[adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ 
+]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard[?2004h[?2004h[?2004h[adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ ./log_terminal_sessions.sh./log_terminal_sessions.sh./log_terminal_sessions.sh
+[?2004l
+[?2004l
+[?2004lDo you want to add this script to startup? (y/n)
+Do you want to add this script to startup? (y/n)
+Do you want to add this script to startup? (y/n)
+yyy
+
+
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+ttt   yyy
+
+
+Script removed from startup.
+Script removed from startup.
+Script removed from startup.
+]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard]0;adminjay@archlinux:~/Pegboard[?2004h[?2004h[?2004h[adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ ./log_terminal_sessions.sh./log_terminal_sessions.sh./log_terminal_sessions.shiwctl station wlan0 connect 'Library Public WiFi'iwctl station wlan0 connect 'Library Public WiFi'iwctl station wlan0 connect 'Library Public WiFi'[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[23P./log_terminal_sessions.sh[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[23P./log_terminal_sessions.sh[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[23P./log_terminal_sessions.sh
+
+
+[?2004l[?2004l[?2004lDo you want to add this script to startup? (y/n)
+Do you want to add this script to startup? (y/n)
+Do you want to add this script to startup? (y/n)
+yyy
+
+
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+Script already added to startup.
+Do you want to remove the script from startup? (y/n)
+nnn
+Script remains in startup.
+
+Script remains in startup.
+
+Script remains in startup.
+]0;adminjay@archlinux:~/Pegboard[?2004h]0;adminjay@archlinux:~/Pegboard[?2004h[adminjay@archlinux Pegboard]$ ]0;adminjay@archlinux:~/Pegboard[?2004h[adminjay@archlinux Pegboard]$ [adminjay@archlinux Pegboard]$ 
