@@ -7,7 +7,7 @@ set -euo pipefail
 # created: 3/29/2023
 # revised: 3/29/2023
 # reminder: chmod +x build_pegboard.sh
-# warning: the author has not tested this yet.  They are waiting till they brick their workspace again.
+# warning: This script hasn't been tested on a blank slate yet.
 # This script sets up a Pegboard env for drafting and pulls.
 
 pegboard_dir="${HOME}/Pegboard"
