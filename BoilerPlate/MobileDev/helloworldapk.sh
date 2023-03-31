@@ -1,33 +1,56 @@
 #!/bin/bash
-set -euo pipefail
+
 
 ####
 # file: helloworldapk.sh
-# drafted by: Evan Upham; evan.upham@outlook.com; https://uphamprojects.com; https://github.com/Eupham/Pegboard.git
+# drafted by:Evan Upham; evan.upham@outlook.com; https://uphamprojects.com; https://github.com/Eupham/Pegboard.git
 # created: 3/30/2023
 # revised: 3/30/2023
 # reminder: chmod +x helloworldapk.sh
-# warning: This script hasn't been tested yet
-# This script sets up mobile dev dependencies
+# Attempt at creating a mobile app
+#!/bin/bash
 
-# Create a new React Native project
-react-native init HelloWorld
+# Define project directory
+PROJECT_NAME="MyKotlinApp"
+PROJECT_DIR="${HOME}/projects/${PROJECT_NAME}"
 
-# Change into the project directory
-cd HelloWorld
+# Create project directory
+mkdir -p "${PROJECT_DIR}"
+cd "${PROJECT_DIR}"
 
-# Build and run the project on an Android emulator or connected device
-react-native run-android
+# Initialize Gradle project
+gradle init --type kotlin-library
 
-# Open the project in Visual Studio Code
-code .
+# Create Kotlin source directory
+mkdir -p src/main/kotlin
 
-# Replace the contents of App.js with "Hello, world!" code
-echo -e "import React from 'react';\nimport { StyleSheet, Text, View } from 'react-native';\n\nexport default function App() {\n  return (\n    <View style={styles.container}>\n      <Text style={styles.text}>Hello, world!</Text>\n    </View>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1,\n    backgroundColor: '#fff',\n    alignItems: 'center',\n    justifyContent: 'center',\n  },\n  text: {\n    fontSize: 24,\n    fontWeight: 'bold',\n  },\n});\n" > src/App.js
+# Create main Kotlin file
+cat << EOF > src/main/kotlin/Main.kt
+fun main() {
+    println("Hello, Kotlin!")
+}
+EOF
 
-# Build an unsigned APK file
-cd android && ./gradlew assembleDebug
+# Create VS Code workspace file
+cat << EOF > ${PROJECT_NAME}.code-workspace
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "kotlin.configuration.language.version": "1.5"
+    },
+    "extensions": {
+        "recommendations": [
+            "mathiasfrohlich.Kotlin",
+            "vscjava.vscode-java-debug",
+            "vscjava.vscode-java-test"
+        ]
+    }
+}
+EOF
 
-# Move the APK file to the desired directory
-mkdir -p "${HOME}/Pegboard/BoilerPlate/MobileDev/HelloWorld"
-mv app/build/outputs/apk/debug/app-debug.apk "${HOME}/Pegboard/BoilerPlate/MobileDev/HelloWorld"
+# Open project in VS Code
+code "${PROJECT_DIR}"
