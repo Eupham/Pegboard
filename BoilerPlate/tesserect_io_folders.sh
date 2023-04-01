@@ -6,14 +6,12 @@
 # created: 3/31/2023
 # revised: 3/31/2023
 # reminder: chmod +x tesserect_io_folders.sh
-# Creates Tesseract project.  Project converts images in the input path to the text in the output path
+# Creates Tesseract folders.  Rclone pulls files from onedrive folder with pngs to input folder.  Tesserect converts images in the input path to the text in the output path
 #!/bin/bash
 
-# Check if Tesseract, Tesseract data and ImageMagick are installed
-if ! command -v tesseract &> /dev/null || ! command -v convert &> /dev/null; then
-  sudo pacman -S tesseract tesseract-data-eng
-  exit 1
-fi
+# Check if Tesseract, Tesseract data are installed
+sudo pacman -S  --needed tesseract tesseract-data-eng
+
 
 # Set the project name and create the required folders
 project_name="TesserectPng2Txt"
@@ -24,18 +22,13 @@ mkdir -p "${project_root}"
 ocr_root="${project_root}/OCR"
 input_folder="${ocr_root}/Input"
 output_folder="${ocr_root}/Output"
-subs_folder="${ocr_root}/Subs"
 
 # Create the required subfolders if they do not exist
 mkdir -p "${input_folder}"
 mkdir -p "${output_folder}"
-mkdir -p "${subs_folder}"
 
 # Check if rclone is installed and configured for OneDrive
-if ! command -v rclone &> /dev/null; then
-  echo "rclone is not installed. Installing..."
-  sudo pacman -S rclone
-fi
+sudo pacman -S --needed rclone
 
 if ! rclone config show | grep -q 'onedrive'; then
   echo "rclone is not configured for OneDrive. Configuring..."
@@ -44,7 +37,7 @@ fi
 
 # Refresh OneDrive folder
 echo "Refreshing OneDrive folder..."
-rclone sync "onedrive:/path/to/onedrive/folder" "${input_folder}"
+rclone sync "onedrive:/OCR_INPUT" "${input_folder}"
 
 # Process all PNG images in the input folder
 for input_image in "${input_folder}"/*.png; do
