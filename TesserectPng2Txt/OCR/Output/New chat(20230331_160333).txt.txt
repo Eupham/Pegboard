@@ -1,0 +1,16 @@
+New chat
+https://chat.openai.com/chat?model=gpt-4
+
+Before running the script, ensure you have the
+specified OCR root folder (*${HOME}/OCR ")
+with Input, Output, and Subs subfolders. If
+these folders exist, the script will process all
+JPEG images in the Input folder, save
+intermediate TIF images to the Subs folder,
+and create datetime-stamped text files in the
+Output folder for each image. If any of the
+folders are missing, the script will exit without
+
+performing the conversion process.
+
+@)
