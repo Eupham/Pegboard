@@ -12,18 +12,17 @@
 # reminder: ./kaldi_setup.sh
 
 # Import the arch4edu GPG key to your keyring
-curl https://arch4edu.keybase.pub/arch4edu.gpg | gpg --import -
-
-# Verify the key's fingerprint
-gpg --fingerprint 7931B6D628C8D3BA
+pacman-key --recv-keys 7931B6D628C8D3BA
+pacman-key --finger 7931B6D628C8D3BA
+pacman-key --lsign-key 7931B6D628C8D3BA
 
 # Add the arch4edu repository to your pacman configuration file
 echo "[arch4edu]" >> /etc/pacman.conf
 echo "SigLevel = Required DatabaseOptional" >> /etc/pacman.conf
-echo "Server = https://mirrors.tuna.tsinghua.edu.cn/arch4edu/\$arch" >> /etc/pacman.conf
+echo "Server = https://at.arch4edu.mirror.kescher.at/$arch" >> /etc/pacman.conf
 
 # Refresh the package list to include the packages from the new repository
 pacman -Sy
 
 # Install the kaldi-openfst package from the arch4edu repository
-pacman -S kaldi-openfst
+pacman -S kaldi-openfst kaldi
