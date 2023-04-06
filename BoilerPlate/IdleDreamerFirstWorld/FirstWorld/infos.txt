@@ -1,0 +1,5 @@
+Title:          First World
+Serie:          Idle Dreamer
+Genre:          Fiction
+Author:         Evan Upham
+Email:          Evan.Upham@outlook.com
