@@ -34,6 +34,7 @@ class RedisGUI:
         self.create_table(self.enttyp_frame, "entity_type")
         self.create_table(self.loctyp_frame, "location_type")
     
+
     def create_table(self, frame, hash_name):
         table_data = {}
         table_keys = self.redis_client.keys(f"{hash_name}:*")
@@ -44,8 +45,13 @@ class RedisGUI:
 
         column_names = list(list(table_data.values())[0].keys())
 
+        entry_widgets = self.create_entry_form(frame, column_names, hash_name)
+        table_treeview = self.create_table_treeview(frame, column_names, table_data, entry_widgets)
+
+    def create_entry_form(self, frame, column_names, hash_name):
         entry_form = ttk.Frame(frame)
         entry_widgets = {}
+        related_treeview_frame = ttk.Frame(frame)  # Add a new frame for the related Treeview
 
         for i, column in enumerate(column_names):
             label = ttk.Label(entry_form, text=column)
@@ -55,6 +61,9 @@ class RedisGUI:
             entry.grid(row=i, column=1)
             entry_widgets[column] = entry
 
+            # Bind the Entry's click event to show_related_treeview method
+            if column in ["AssEntID", "InvEntID", "LocID", "EntTypID", "LocTypID"]:
+                entry.bind('<Button-1>', lambda event, col=column, frame=related_treeview_frame, entry=entry_widgets[column]: self.show_related_treeview(col, frame, entry))
         add_button = ttk.Button(entry_form, text="Add", command=lambda: self.add_record(hash_name, entry_widgets, table_treeview))
         add_button.grid(row=len(column_names), column=0)
 
@@ -64,8 +73,13 @@ class RedisGUI:
         delete_button = ttk.Button(entry_form, text="Delete", command=lambda: self.delete_record(hash_name, table_treeview))
         delete_button.grid(row=len(column_names), column=2)
 
-        entry_form.pack(side="top", fill="x")
+        entry_form.pack(side="left", fill="y")  # Update the packing to 'left'
+        related_treeview_frame.pack(side="left", fill="both")  # Pack the new frame to the right of the entry_form
 
+        entry_form.pack(side="top", fill="x")
+        return entry_widgets
+
+    def create_table_treeview(self, frame, column_names, table_data, entry_widgets):
         table_treeview = ttk.Treeview(frame, columns=column_names, show="headings")
         for column in column_names:
             table_treeview.heading(column, text=column)
@@ -79,6 +93,7 @@ class RedisGUI:
         table_treeview.configure(yscrollcommand=scrollbar.set)
 
         table_treeview.bind('<ButtonRelease-1>', lambda event: self.tree_row_click(event, table_treeview, entry_widgets))
+        return table_treeview
 
     def get_entities(self):
         entity_keys = self.redis_client.keys("entity:*")
@@ -126,27 +141,49 @@ class RedisGUI:
             entry_widgets[column].insert(0, value)
 
     def get_column_values(self, column_name):
-        if column_name == "AssEntID" or column_name == "InvEntID":
-            data = self.entity_data
-            prefix = "entity:"
-            field = "Name"
-        elif column_name == "LocID":
-            data = self.location_data
-            prefix = "location:"
-            field = "Address"
-        elif column_name == "EntTypID":
-            data = self.entity_type_data
-            prefix = "entity_type:"
-            field = "TypeName"
-        elif column_name == "LocTypID":
-            data = self.entity_type_data
-            prefix = "location_type:"
-            field = "TypeName"
+        column_info = {
+            "AssEntID": {"data": self.entity_data, "prefix": "entity:", "field": "Name"},
+            "InvEntID": {"data": self.entity_data, "prefix": "entity:", "field": "Name"},
+            "LocID": {"data": self.location_data, "prefix": "location:", "field": "Address"},
+            "EntTypID": {"data": self.entity_type_data, "prefix": "entity_type:", "field": "TypeName"},
+            "LocTypID": {"data": self.location_type_data, "prefix": "location_type:", "field": "TypeName"},
+        }
 
-        else:
-            return {}
+        for key, info in column_info.items():
+            if column_name == key:
+                data = info["data"]
+                prefix = info["prefix"]
+                field = info["field"]
+                return {k.replace(prefix, ""): v[field] for k, v in data.items() if field in v}
 
-        return {k.replace(prefix, ""): v[field] for k, v in data.items() if field in v}
+        return {}
+
+    def show_related_treeview(self, column_name, related_treeview_frame, entry_widget):
+        related_data = self.get_column_values(column_name)
+
+        # Destroy any existing Treeview in the frame
+        for child in related_treeview_frame.winfo_children():
+            child.destroy()
+
+        related_treeview = ttk.Treeview(related_treeview_frame, columns=["ID", "Name"], show="headings")
+        related_treeview.heading("ID", text="ID")
+        related_treeview.heading("Name", text="Name")
+
+        for key, value in related_data.items():
+            related_treeview.insert("", "end", value=[key, value])
+
+        related_treeview.pack(side="left", fill="both")
+        scrollbar = ttk.Scrollbar(related_treeview_frame, orient="vertical", command=related_treeview.yview)
+        scrollbar.pack(side="right", fill="y")
+        related_treeview.configure(yscrollcommand=scrollbar.set)
+
+        related_treeview.bind('<ButtonRelease-1>', lambda event, entry=entry_widget: self.related_treeview_row_click(event, related_treeview, entry))
+
+    def related_treeview_row_click(self, event, related_treeview, entry_widget):
+        item = related_treeview.selection()[0]
+        row_values = related_treeview.item(item, 'values')
+        entry_widget.delete(0, tk.END)
+        entry_widget.insert(0, row_values[0])
 
 
     def add_record(self, hash_name, entry_widgets, table_treeview):
