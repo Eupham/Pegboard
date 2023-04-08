@@ -28,16 +28,13 @@ class RedisGUI:
         self.location_type_data = self.get_location_types()
 
         # Create tables and entry forms
-        self.create_table(self.task_frame, "task", combobox_columns=["AssEntID", "InvEntID", "LocID"])
-        self.create_table(self.entity_frame, "entity", combobox_columns=["EntTypID"])
-        self.create_table(self.location_frame, "location", combobox_columns=["LocTypID"])
+        self.create_table(self.task_frame, "task")
+        self.create_table(self.entity_frame, "entity")
+        self.create_table(self.location_frame, "location")
         self.create_table(self.enttyp_frame, "entity_type")
         self.create_table(self.loctyp_frame, "location_type")
-
-    def create_table(self, frame, hash_name, combobox_columns=None):
-        if combobox_columns is None:
-            combobox_columns = []
-
+    
+    def create_table(self, frame, hash_name):
         table_data = {}
         table_keys = self.redis_client.keys(f"{hash_name}:*")
         for key in table_keys:
@@ -54,33 +51,9 @@ class RedisGUI:
             label = ttk.Label(entry_form, text=column)
             label.grid(row=i, column=0)
 
-            if column in combobox_columns:
-                combobox_data = self.get_column_values(column)
-                combobox_values = [f"{v} ({k.split(':')[-1]})" for k, v in combobox_data.items()]
-                combobox = ttk.Combobox(entry_form, value=combobox_values, state="readonly")
-                combobox.grid(row=i, column=1)
-
-                # store the ID value in the entry_widgets dict for later use
-                column_id = f"{column.lower()}"
-
-                def combobox_selected(event, entry, column_id):
-                    selected_value = combobox.get()
-                    print(f"combobox_data: {combobox_data}")
-                    print(f"selected_value: {selected_value}")
-                    selected_id = [k.split(':')[-1] for k, v in combobox_data.items() if f"{v} ({k.split(':')[-1]})" == selected_value][0]
-                    entry.delete(0, tk.END)
-                    entry.insert(0, selected_id)
-
-                entry = ttk.Entry(entry_form)
-                entry.grid(row=i, column=2)
-                entry_widgets[column] = entry
-
-                combobox.bind("<<ComboboxSelected>>", lambda event, e=entry, c_id=column_id: combobox_selected(event, e, c_id))
-
-            else:
-                entry = ttk.Entry(entry_form)
-                entry.grid(row=i, column=1)
-                entry_widgets[column] = entry
+            entry = ttk.Entry(entry_form)
+            entry.grid(row=i, column=1)
+            entry_widgets[column] = entry
 
         add_button = ttk.Button(entry_form, text="Add", command=lambda: self.add_record(hash_name, entry_widgets, table_treeview))
         add_button.grid(row=len(column_names), column=0)
@@ -106,29 +79,6 @@ class RedisGUI:
         table_treeview.configure(yscrollcommand=scrollbar.set)
 
         table_treeview.bind('<ButtonRelease-1>', lambda event: self.tree_row_click(event, table_treeview, entry_widgets))
-
-    def get_column_values(self, column_name):
-        if column_name == "AssEntID" or column_name == "InvEntID":
-            data = self.entity_data
-            prefix = "entity:"
-            field = "Name"
-        elif column_name == "LocID":
-            data = self.location_data
-            prefix = "location:"
-            field = "Address"
-        elif column_name == "EntTypID":
-            data = self.entity_type_data
-            prefix = "entity_type:"
-            field = "TypeName"
-        elif column_name == "LocTypID":
-            data = self.entity_type_data
-            prefix = "location_type:"
-            field = "TypeName"
-
-        else:
-            return {}
-
-        return {k.replace(prefix, ""): v[field] for k, v in data.items() if field in v}
 
     def get_entities(self):
         entity_keys = self.redis_client.keys("entity:*")
@@ -174,6 +124,30 @@ class RedisGUI:
             column = treeview.column(i, option='id')
             entry_widgets[column].delete(0, tk.END)
             entry_widgets[column].insert(0, value)
+
+    def get_column_values(self, column_name):
+        if column_name == "AssEntID" or column_name == "InvEntID":
+            data = self.entity_data
+            prefix = "entity:"
+            field = "Name"
+        elif column_name == "LocID":
+            data = self.location_data
+            prefix = "location:"
+            field = "Address"
+        elif column_name == "EntTypID":
+            data = self.entity_type_data
+            prefix = "entity_type:"
+            field = "TypeName"
+        elif column_name == "LocTypID":
+            data = self.entity_type_data
+            prefix = "location_type:"
+            field = "TypeName"
+
+        else:
+            return {}
+
+        return {k.replace(prefix, ""): v[field] for k, v in data.items() if field in v}
+
 
     def add_record(self, hash_name, entry_widgets, table_treeview):
         new_values = {column: entry.get() for column, entry in entry_widgets.items()}
