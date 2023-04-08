@@ -55,31 +55,28 @@ class RedisGUI:
             label.grid(row=i, column=0)
 
             if column in combobox_columns:
-                combobox_values = list(self.get_column_values(column).values())
+                combobox_data = self.get_column_values(column)
+                combobox_values = [f"{v} ({k.split(':')[-1]})" for k, v in combobox_data.items()]
                 combobox = ttk.Combobox(entry_form, value=combobox_values, state="readonly")
                 combobox.grid(row=i, column=1)
 
                 # store the ID value in the entry_widgets dict for later use
                 column_id = f"{column.lower()}"
-                if column_id == "assentid" or column_id == "inventid":
-                    column_id = "entid"
-                else:
-                    column_id = column_id
-                entry_widgets[column_id] = {v: k.split(":")[-1] for k, v in self.get_column_values(column).items()}
 
-                def combobox_selected(event, entry):
+                def combobox_selected(event, entry, column_id):
                     selected_value = combobox.get()
-                    selected_id = entry_widgets[column_id].get(selected_value)
+                    print(f"combobox_data: {combobox_data}")
+                    print(f"selected_value: {selected_value}")
+                    selected_id = [k.split(':')[-1] for k, v in combobox_data.items() if f"{v} ({k.split(':')[-1]})" == selected_value][0]
                     entry.delete(0, tk.END)
                     entry.insert(0, selected_id)
-                    
 
                 entry = ttk.Entry(entry_form)
                 entry.grid(row=i, column=2)
                 entry_widgets[column] = entry
 
-                combobox.bind("<<ComboboxSelected>>", lambda event, e=entry: combobox_selected(event, e))
-                
+                combobox.bind("<<ComboboxSelected>>", lambda event, e=entry, c_id=column_id: combobox_selected(event, e, c_id))
+
             else:
                 entry = ttk.Entry(entry_form)
                 entry.grid(row=i, column=1)
