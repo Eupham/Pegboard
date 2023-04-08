@@ -60,7 +60,11 @@ class RedisGUI:
                 combobox.grid(row=i, column=1)
 
                 # store the ID value in the entry_widgets dict for later use
-                column_id = f"{column.lower()}_id"
+                column_id = f"{column.lower()}"
+                if column_id == "assentid" or column_id == "inventid":
+                    column_id = "entid"
+                else:
+                    column_id = column_id
                 entry_widgets[column_id] = {v: k.split(":")[-1] for k, v in self.get_column_values(column).items()}
 
                 def combobox_selected(event, entry):
@@ -68,13 +72,14 @@ class RedisGUI:
                     selected_id = entry_widgets[column_id].get(selected_value)
                     entry.delete(0, tk.END)
                     entry.insert(0, selected_id)
+                    
 
                 entry = ttk.Entry(entry_form)
                 entry.grid(row=i, column=2)
                 entry_widgets[column] = entry
 
                 combobox.bind("<<ComboboxSelected>>", lambda event, e=entry: combobox_selected(event, e))
-
+                
             else:
                 entry = ttk.Entry(entry_form)
                 entry.grid(row=i, column=1)
