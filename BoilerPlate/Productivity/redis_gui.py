@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import Toplevel
+from tkcalendar import DateEntry
+from tktimepicker import AnalogPicker
+from datetime import datetime
 import redis
 
 
@@ -33,7 +37,6 @@ class RedisGUI:
         self.create_table(self.location_frame, "location")
         self.create_table(self.enttyp_frame, "entity_type")
         self.create_table(self.loctyp_frame, "location_type")
-    
 
     def create_table(self, frame, hash_name):
         table_data = {}
@@ -48,6 +51,28 @@ class RedisGUI:
         entry_widgets = self.create_entry_form(frame, column_names, hash_name)
         table_treeview = self.create_table_treeview(frame, column_names, table_data, entry_widgets)
 
+    def show_time_picker(self, time_button):
+        picker_window = Toplevel()
+        picker_frame = ttk.Frame(picker_window)
+
+        picker = AnalogPicker(picker_frame)
+
+        def on_time_select():
+            time_str = datetime.strptime(picker.selected_time, "%H:%M").strftime("%I:%M %p")
+            entry_widget.config(state="normal")
+            entry_widget.delete(0, tk.END)
+            entry_widget.insert(0, time_str)
+            entry_widget.config(state="readonly")
+            picker_window.destroy()
+
+        confirm_button = ttk.Button(picker_frame, text="Confirm", command=on_time_select)
+
+        picker.pack(side="left", fill="both")
+        confirm_button.pack(side="right", padx=5)
+
+        picker_frame.pack(fill="both", expand=True)
+
+
     def create_entry_form(self, frame, column_names, hash_name):
         entry_form = ttk.Frame(frame)
         entry_widgets = {}
@@ -57,13 +82,27 @@ class RedisGUI:
             label = ttk.Label(entry_form, text=column)
             label.grid(row=i, column=0)
 
-            entry = ttk.Entry(entry_form)
-            entry.grid(row=i, column=1)
-            entry_widgets[column] = entry
+            if column == "DateTime":
+                date_entry = DateEntry(entry_form, format='%m/%d/%Y')
+                date_entry.grid(row=i, column=1)
+                entry_widgets["Date"] = date_entry
 
-            # Bind the Entry's click event to show_related_treeview method
-            if column in ["AssEntID", "InvEntID", "LocID", "EntTypID", "LocTypID"]:
-                entry.bind('<Button-1>', lambda event, col=column, frame=related_treeview_frame, entry=entry_widgets[column]: self.show_related_treeview(col, frame, entry))
+                time_label = ttk.Label(entry_form, text="00:00:00")
+                time_label.grid(row=i, column=2)
+                entry_widgets["Time"] = time_label
+
+                # Bind the label's double click event to show_time_picker method
+                time_label.bind('<Double-Button-1>', lambda event: self.show_time_picker(entry_widgets["Time"]))
+
+            else:
+                entry = ttk.Entry(entry_form)
+                entry.grid(row=i, column=1)
+                entry_widgets[column] = entry
+
+                # Bind the Entry's click event to show_related_treeview method
+                if column in ["AssEntID", "InvEntID", "LocID", "EntTypID", "LocTypID"]:
+                    entry.bind('<Button-1>', lambda event, col=column, frame=related_treeview_frame, entry=entry_widgets[column]: self.show_related_treeview(col, frame, entry))
+
         add_button = ttk.Button(entry_form, text="Add", command=lambda: self.add_record(hash_name, entry_widgets, table_treeview))
         add_button.grid(row=len(column_names), column=0)
 
@@ -78,6 +117,7 @@ class RedisGUI:
 
         entry_form.pack(side="top", fill="x")
         return entry_widgets
+
 
     def create_table_treeview(self, frame, column_names, table_data, entry_widgets):
         table_treeview = ttk.Treeview(frame, columns=column_names, show="headings")
@@ -137,8 +177,14 @@ class RedisGUI:
 
         for i, value in enumerate(row_values):
             column = treeview.column(i, option='id')
-            entry_widgets[column].delete(0, tk.END)
-            entry_widgets[column].insert(0, value)
+            if column == "DateTime":
+                date_value, time_value = value.split(" ")
+                entry_widgets["Date"].delete(0, tk.END)
+                entry_widgets["Date"].insert(0, date_value)
+                entry_widgets["Time"].config(text=time_value) # Update the time label
+            else:
+                entry_widgets[column].delete(0, tk.END)
+                entry_widgets[column].insert(0, value)
 
     def get_column_values(self, column_name):
         column_info = {
@@ -187,16 +233,26 @@ class RedisGUI:
 
 
     def add_record(self, hash_name, entry_widgets, table_treeview):
-        new_values = {column: entry.get() for column, entry in entry_widgets.items()}
-        new_key = f"{hash_name}:{max([int(k.split(':')[1]) for k in self.redis_client.keys(f'{hash_name}:*')]) + 1}"
+        new_values = {column: entry.get() for column, entry in entry_widgets.items() if column not in ["Date", "Time"]}
+        new_values["DateTime"] = f"{entry_widgets['Date'].get()} {entry_widgets['Time'].get()}"
 
+        new_key = f"{hash_name}:{max([int(k.split(':')[1]) for k in self.redis_client.keys(f'{hash_name}:*')]) + 1}"
         self.redis_client.hmset(new_key, new_values)
-        table_treeview.insert("", "end", value=list(new_values.values()))
+
+        # Adjust the values list to include the combined DateTime field
+        display_values = list(new_values.values())
+        display_values.insert(display_values.index(new_values["DateTime"]), new_values["DateTime"])
+        display_values.remove(new_values["Date"])
+        display_values.remove(new_values["Time"])
+
+        table_treeview.insert("", "end", value=display_values)
+
 
     def update_record(self, hash_name, entry_widgets, table_treeview):
         item = table_treeview.selection()[0]
         row_key = table_treeview.item(item, 'text')
-        updated_values = {column: entry.get() for column, entry in entry_widgets.items()}
+        updated_values = {column: entry.get() for column, entry in entry_widgets.items() if column not in ["Date", "Time"]}
+        updated_values["DateTime"] = f"{entry_widgets['Date'].get()} {entry_widgets['Time'].get()}"
 
         self.redis_client.hmset(row_key, updated_values)
         table_treeview.item(item, value=list(updated_values.values()))
