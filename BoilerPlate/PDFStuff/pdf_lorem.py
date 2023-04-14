@@ -19,7 +19,7 @@ def generate_pdf(flattened=False, num_pages=1):
 
         if flattened:
             # Create an image with the text
-            font = ImageFont.truetype("arial.ttf", 14)
+            font = ImageFont.truetype("LiberationSans-Regular.ttf", 14)
             img_width, img_height = font.getsize(text)
             img = Image.new('RGB', (img_width+10, img_height+10), color = (255, 255, 255))
             d = ImageDraw.Draw(img)
