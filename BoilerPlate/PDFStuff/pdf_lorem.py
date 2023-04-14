@@ -38,5 +38,12 @@ def generate_pdf(flattened=False, num_pages=1, file_name="lorem_ipsum.pdf"):
     packet.seek(0)
     pdf = PdfReader(packet)
 
+    # Write the PDF to a file
+    writer = PdfWriter()
+    for page in pdf.pages:
+        writer.add_page(page)
+    with open(file_name, 'wb') as f:
+        writer.write(f)
+
 # Generate a regular PDF file with Lorem Ipsum text and 5 pages
 generate_pdf(flattened=False, num_pages=5, file_name="lorem_ipsum.pdf")
