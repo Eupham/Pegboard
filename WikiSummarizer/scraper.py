@@ -88,7 +88,7 @@ class RobotParser:
  
     def main(queries):
         url = "https://en.wikipedia.org/robots.txt"
-        user_agent = "WqEtiquette/0.1.4"
+        user_agent = "WqEtiquette/0.1.6"
  
         parser = RobotParser(url, user_agent)
  
@@ -300,28 +300,28 @@ if __name__ == '__main__':
     RobotParser.main(queries)
     filenames = [output_dir / f"{q.replace(' ', ' ')}.json" for q in queries]
 
-    # Iterate over the filenames and process each file separately
-    for filename in filenames:
-        # Create a new TextProcessor object for each file
-        text_processor = TextProcessor([filename])
+for filename in filenames:
+    # Create a new TextProcessor object for each file
+    text_processor = TextProcessor([filename])
 
-        # Extract the page name from the filename
-        page_name = filename.replace('.json', '')
+    # Extract the page name from the filename
+    page_name = filename.as_posix().replace('.json', '')
 
-        # Create a dictionary of the attributes for the page
-        page_data = {
-            'words': text_processor.word_count,
-            'letters': text_processor.letters,
-            'symbols': text_processor.symbols,
-            'word_occurrences': text_processor.count_words_occurrences(),
-            'letter_ngrams': text_processor.letter_ngrams,
-            'symbol_ngrams': text_processor.symbol_ngrams,
-            'word_ngrams': text_processor.word_ngrams
-        }
+    # Create a dictionary of the attributes for the page
+    page_data = {
+        'words': text_processor.word_count,
+        'letters': text_processor.letters,
+        'symbols': text_processor.symbols,
+        'word_occurrences': text_processor.count_words_occurrences(),
+        'letter_ngrams': text_processor.letter_ngrams,
+        'symbol_ngrams': text_processor.symbol_ngrams,
+        'word_ngrams': text_processor.word_ngrams4
+    }
 
-        # Save the dictionary as a JSON file
-        with open(output_dir / f"{page_name}_attributes.json", 'w') as f:
-            json.dump(page_data, f, indent=4)
+    # Save the dictionary as a JSON file
+    with open( f"{page_name}_attributes.json", 'w') as f:
+        json.dump(page_data, f, indent=4)
+
 
     # Aggregate the statistics across all pages and output the results to a separate JSON file
     aggregator = PageStatsAggregator(output_dir)
