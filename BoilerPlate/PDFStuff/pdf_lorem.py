@@ -5,9 +5,13 @@ from reportlab.lib.units import inch
 from lorem_text import lorem
 from PIL import Image, ImageDraw, ImageFont
 
-def generate_pdf(flattened=False, num_pages=1):
+from PyPDF2 import PdfWriter, PdfReader
+from io import BytesIO
+
+def generate_pdf(flattened=False, num_pages=1, file_name="lorem_ipsum.pdf"):
     # Create a new PDF file
-    c = canvas.Canvas("lorem_ipsum.pdf", pagesize=letter)
+    packet = BytesIO()
+    c = canvas.Canvas(packet, pagesize=letter)
 
     # Define the margin and width of the text box
     margin = 0.5*inch
@@ -17,33 +21,22 @@ def generate_pdf(flattened=False, num_pages=1):
         # Generate the text for the PDF
         text = lorem.paragraphs(10)
 
-        if flattened:
-            # Create an image with the text
-            font = ImageFont.truetype("LiberationSans-Regular.ttf", 14)
-            img_width, img_height = font.getsize(text)
-            img = Image.new('RGB', (img_width+10, img_height+10), color = (255, 255, 255))
-            d = ImageDraw.Draw(img)
-            d.text((5,5), text, font=font, fill=(0, 0, 0))
-
-            # Flatten the image to a PNG file
-            img_file = f"lorem_ipsum_{page+1}.png"
-            img.save(img_file)
-
-            # Insert the image into the PDF
-            c.drawImage(ImageReader(img_file), margin, margin, width, img_height)
-
-        else:
-            # Create a text object and insert it into the PDF
-            c.drawString(margin, 9*inch - margin - 14, text)
+        text_object = c.beginText(margin, 9*inch - margin - 14)
+        text_object.setTextOrigin(margin, 9*inch - margin - 14)
+        text_object.setFont("Helvetica", 12)
+        lines = text.split("\n")
+        for line in lines:
+            text_object.textOut(line)
+            text_object.moveCursor(0, -20)  # Set the line spacing
+        c.drawText(text_object)
 
         # Move to the next page
         c.showPage()
 
-    # Save the PDF file
+    # Save the PDF file to memory
     c.save()
+    packet.seek(0)
+    pdf = PdfReader(packet)
 
-# Generate a PDF file with flattened text and 3 pages
-generate_pdf(flattened=True, num_pages=3)
-
-# Generate a PDF file with Lorem Ipsum text and 5 pages
-generate_pdf(flattened=False, num_pages=5)
+# Generate a regular PDF file with Lorem Ipsum text and 5 pages
+generate_pdf(flattened=False, num_pages=5, file_name="lorem_ipsum.pdf")
