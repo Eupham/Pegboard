@@ -1,4 +1,3 @@
-#import pymupdf
 import fitz
 
 # Open the PDF file
@@ -7,34 +6,26 @@ doc = fitz.open('lorem_ipsum.pdf')
 # Define the keyword to split the PDF on
 keyword = 'aliquid'
 
-# Initialize the page counter and output PDF file counter
-page_counter = 0
-output_counter = 0
-
 # Loop through each page of the PDF file
-for page in doc:
+for i, page in enumerate(doc):
 
     # Get the xhtml formatted text of the page
-    text = page.get_text("xhtml")
+    text = page.get_text("text")
 
-    # Check if the keyword exists in the page text
-    if keyword in text:
+    # Split the text into segments based on the keyword
+    segments = text.split(keyword)
 
-        # Split the PDF at the current page
-        out_file_name = f'output_{keyword}_{output_counter}.pdf'
+    # Loop through each segment and save as a separate PDF file
+    for j, segment in enumerate(segments):
+
+        # Define the output file name for the current segment
+        out_file_name = f'output_{keyword}_{i}_{j}.pdf'
+
+        # Create a new PDF document and add the current segment as a new page
         out_doc = fitz.open()
-        out_doc.insert_pdf(doc, from_page=page_counter, to_page=page.number-1)
+        out_page = out_doc.new_page()
+        out_page.insert_text((0, 0), segment)
+        
+        # Save the new PDF document as a separate file
         out_doc.save(out_file_name)
         out_doc.close()
-
-        # Update the page counter and output PDF file counter
-        page_counter = page.number
-        output_counter += 1
-
-# If the last keyword was found on the last page of the document, save the remaining pages to a new PDF file
-if page_counter < len(doc):
-    out_file_name = f'output_{keyword}_{output_counter}.pdf'
-    out_doc = fitz.open()
-    out_doc.insert_pdf(doc, from_page=page_counter, to_page=len(doc)-1)
-    out_doc.save(out_file_name)
-    out_doc.close()
