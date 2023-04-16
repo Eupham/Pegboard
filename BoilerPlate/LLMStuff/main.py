@@ -1,24 +1,37 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 
-model_name = "pszemraj/long-t5-tglobal-base-16384-book-summary"
+# Load the Dolly-v2-12b model and tokenizer
+model_name = "databricks/dolly-v2-12b"
+tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+# Define the instruction generation pipeline
+class InstructionTextGenerationPipeline(pipeline.Pipeline):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-summarizer = pipeline(
-    "summarization",
-    model=model,
-    tokenizer=tokenizer,
-    device=0 if torch.cuda.is_available() else -1,
-)
+    def __call__(self, instructions: str, **kwargs):
+        # Tokenize the input instructions
+        inputs = self.tokenizer(instructions, return_tensors="pt", truncation=True, max_length=512)
 
-def summarize(text, max_length=100):
-    result = summarizer(text, max_length=max_length, min_length=30, do_sample=False, num_beams=4)
-    summary = result[0]["summary_text"]
-    return summary
+        # Generate text based on the instructions
+        outputs = self.model.generate(
+            input_ids=inputs.input_ids.to(self.device),
+            attention_mask=inputs.attention_mask.to(self.device),
+            **kwargs,
+        )
 
-# Example usage:
-web_scrape = "Your web scrape text here..."
-summary = summarize(web_scrape)
-print(summary)
+        # Decode the generated text
+        generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        return generated_text
+
+# Create the instruction generation pipeline
+generate_text = InstructionTextGenerationPipeline(model=model, tokenizer=tokenizer, device=0)
+
+# Generate text based on input instructions
+instructions = "Explain to me the difference between nuclear fission and fusion."
+generated_text = generate_text(instructions)
+
+print(generated_text)
