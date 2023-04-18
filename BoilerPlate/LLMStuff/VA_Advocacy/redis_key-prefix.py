@@ -2,7 +2,6 @@
 import redis
 from typing import Dict
 
-# Create connections to Redis instances (assuming you have them configured)
 client = redis.Redis('localhost', 6379)
 
 def create_key_prefixes():
