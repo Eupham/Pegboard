@@ -290,5 +290,4 @@ if __name__ == "__main__":
     nash_scenario = nash_CRUD("Nash Scenario 1", "2023-04-19", "2023-04-20")
     nash_scenario.save()
 
-    # add the event to the Nash scenario
     nash_scenario.add_event(event)
