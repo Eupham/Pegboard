@@ -43,7 +43,7 @@ def create_module_metadata(module_name, metadata):
     for metadata_item in metadata:
         client.zadd(f"{module_name}:metadata:{metadata_item}", {"": 0})
 
-class Entity_CRUD:
+class entity_CRUD:
     def __init__(self, client):
         self.client = client
     
@@ -81,7 +81,7 @@ class Entity_CRUD:
         entity_key = f"entity:{entity_id}"
         self.client.delete(entity_key)
 
-class Party_CRUD:
+class party_CRUD:
     def __init__(self, name, date_formed, date_disbanded, entity_set=None, event_set=None, objective_set=None, action_set=None):
         self.id = client.incr("party:id")
         self.name = name
@@ -151,5 +151,144 @@ class Party_CRUD:
         self.action_set.discard(action.id)
         self.save()
 
+
+class event_CRUD:
+    def __init__(self, name, location, datetime_start, datetime_end, party_set=None, result_set=None):
+        self.id = client.incr("event:id")
+        self.name = name
+        self.location = location
+        self.datetime_start = datetime_start
+        self.datetime_end = datetime_end
+        self.party_set = party_set or set()
+        self.result_set = result_set or set()
+
+    def save(self):
+        pipe = client.pipeline()
+        key = f"event:{self.id}"
+        data = {
+            "id": self.id,
+            "name": self.name,
+            "location": self.location,
+            "datetime_start": self.datetime_start,
+            "datetime_end": self.datetime_end,
+            "party_set": list(self.party_set),
+            "result_set": list(self.result_set),
+        }
+        pipe.hmset(key, data)
+        pipe.execute()
+
+    def load(self, id):
+        key = f"event:{id}"
+        data = client.hgetall(key)
+        if not data:
+            return None
+        party_set = set(data.get("party_set", []))
+        result_set = set(data.get("result_set", []))
+        return Event(data["name"], data["location"], data["datetime_start"], data["datetime_end"], party_set, result_set)
+
+    def add_party(self, party):
+        self.party_set.add(party.id)
+        self.save()
+
+    def remove_party(self, party):
+        self.party_set.discard(party.id)
+        self.save()
+
+    def add_result(self, result):
+        self.result_set.add(result.id)
+        self.save()
+
+    def remove_result(self, result):
+        self.result_set.discard(result.id)
+        self.save()
+
+class nash_CRUD:
+    def __init__(self, datastore):
+        self.datastore = datastore
+    
+    def create(self, name, event_set=None, interest_weight_set=None, payoff_set=None):
+        nash_id = str(uuid.uuid4())
+        nash = {
+            "id": nash_id,
+            "name": name,
+            "event_set": event_set or [],
+            "interest_weight_set": interest_weight_set or [],
+            "payoff_set": payoff_set or []
+        }
+        self.datastore["nash"][nash_id] = nash
+        return nash
+    
+    def read(self, nash_id):
+        return self.datastore["nash"].get(nash_id)
+    
+    def update(self, nash_id, name=None, event_set=None, interest_weight_set=None, payoff_set=None):
+        nash = self.datastore["nash"].get(nash_id)
+        if not nash:
+            return None
+        if name:
+            nash["name"] = name
+        if event_set:
+            nash["event_set"] = event_set
+        if interest_weight_set:
+            nash["interest_weight_set"] = interest_weight_set
+        if payoff_set:
+            nash["payoff_set"] = payoff_set
+        return nash
+    
+    def delete(self, nash_id):
+        nash = self.datastore["nash"].get(nash_id)
+        if not nash:
+            return False
+        del self.datastore["nash"][nash_id]
+        return True
+    
+    def list(self):
+        return list(self.datastore["nash"].values())
+    
+    def add_event(self, nash_id, event_id):
+        nash = self.datastore["nash"].get(nash_id)
+        event = self.datastore["event"].get(event_id)
+        if not nash or not event:
+            return False
+        if event_id not in nash["event_set"]:
+            nash["event_set"].append(event_id)
+        return True
+    
+    def remove_event(self, nash_id, event_id):
+        nash = self.datastore["nash"].get(nash_id)
+        if not nash:
+            return False
+        try:
+            nash["event_set"].remove(event_id)
+            return True
+        except ValueError:
+            return False
+
+
 if __name__ == "__main__":
     create_all_module_objects()
+
+    party = party_CRUD("Party A", "2023-04-19", "2023-04-20")
+    party.save()
+
+    entity1 = entity_CRUD(client)
+    entity1.create("entity1", "Entity 1", "2023-04-19", "2023-04-20", "Type A")
+    entity2 = entity_CRUD(client)
+    entity2.create("entity2", "Entity 2", "2023-04-19", "2023-04-20", "Type B")
+    entity3 = entity_CRUD(client)
+    entity3.create("entity3", "Entity 3", "2023-04-19", "2023-04-20", "Type C")
+
+    party.add_entity(entity1)
+    party.add_entity(entity2)
+    party.add_entity(entity3)
+
+    event = event_CRUD("Event X", "Location A", "2023-04-19 08:00:00", "2023-04-19 12:00:00")
+    event.save()
+
+    event.add_party(party)
+
+    nash_scenario = nash_CRUD("Nash Scenario 1", "2023-04-19", "2023-04-20")
+    nash_scenario.save()
+
+    # add the event to the Nash scenario
+    nash_scenario.add_event(event)
