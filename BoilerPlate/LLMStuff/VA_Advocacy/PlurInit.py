@@ -1,4 +1,5 @@
 #PlurInit.py
+
 import redis
 
 client = redis.Redis(host='localhost', port=6379, db=0)
@@ -12,16 +13,17 @@ class Plurals:
         self.client = redis.Redis(host='localhost', port=6379, db=0)
 
     def create_parties_set(self):
-        for prop in self.parties:
-            self.client.zadd(f"{self.name}:parties:{prop}", {"": 0})
+        for party in self.parties:
+            self.client.zadd(f"{self.name}:parties:{party}", {"": 0})
 
     def create_entities_set(self):
-        for attr in self.entities:
-            self.client.zadd(f"{self.name}:entities:{attr}", {"": 0})
+        for entity in self.entities:
+            self.client.zadd(f"{self.name}:entities:{entity}", {"": 0})
 
     def create_events_set(self):
-        for meta in self.events:
-            self.client.zadd(f"{self.name}:events:{meta}", {"": 0})
+        for event in self.events:
+            self.client.zadd(f"{self.name}:events:{event}", {"": 0})
+    
 
 class PluralInit:
     PLURALS = {
