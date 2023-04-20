@@ -4,47 +4,37 @@ import redis
 
 client = redis.Redis(host='localhost', port=6379, db=0)
 
-class Module:
-    def __init__(self, name, properties, attributes, metadata):
-        self.name = name
-        self.properties = properties
-        self.attributes = attributes
-        self.metadata = metadata
-        self.client = redis.Redis(host='localhost', port=6379, db=0)
-
-    def create_properties(self):
-        for prop in self.properties:
-            self.client.zadd(f"{self.name}:property:{prop}", {"": 0})
-
-    def create_attributes(self):
-        for attr in self.attributes:
-            self.client.zadd(f"{self.name}:attribute:{attr}", {"": 0})
-
-    def create_metadata(self):
-        for meta in self.metadata:
-            self.client.zadd(f"{self.name}:metadata:{meta}", {"": 0})
-
-class ModuleInit:
+class ObjectiveInit:
     MODULES = {
         "objectives": {
-            "properties": ["name", "Action", "Outcome"],
-            "attributes": ["type", "Monetary_Cost", "Time_Cost", "Entity_Cost"],
+            "properties": ["name"],
+            "attributes": ["type", "Action_Set", "Result_Set"],
+            "metadata": ["id", "description"]
+        },
+        "actions": {
+            "properties": ["name", "Result_Set"],
+            "attributes": ["type", "Monetary_Cost_Fcst", "Time_Cost_Fcst", "Entity_Cost_Fcst"],
+            "metadata": ["id", "description"]
+        },
+        "results": {
+            "properties": ["name"],
+            "attributes": ["type", "Monetary_Cost_Actl", "Time_Cost_Actl", "Entity_Cost_Actl"],
             "metadata": ["id", "description"]
         }
     }
-#Objective	Action	Outcome
+
     def __init__(self):
-        self.modules = []
-        for module_name, module_data in self.MODULES.items():
-            module = Module(module_name, module_data["properties"], module_data["attributes"], module_data["metadata"])
-            self.modules.append(module)
+        self.client = redis.Redis(host='localhost', port=6379, db=0)
+
+    def create_module_set(self, module_name, set_type, values):
+        for value in values:
+            self.client.zadd(f"{module_name}:{set_type}:{value}", {"": 0})
 
     def create_modules(self):
-        for module in self.modules:
-            module.create_properties()
-            module.create_attributes()
-            module.create_metadata()
+        for module_name, module_data in self.MODULES.items():
+            for set_type in ["properties", "attributes", "metadata"]:
+                self.create_module_set(module_name, set_type, module_data[set_type])
 
 if __name__ == '__main__':
-    objinit = ModuleInit()
+    objinit = ObjectiveInit()
     objinit.create_modules()
