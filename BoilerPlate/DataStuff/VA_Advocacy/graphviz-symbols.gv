@@ -1,0 +1,13 @@
+// Graphviz Symbols and Line Styles
+digraph {
+	node [color=black fillcolor=lightgray shape=ellipse style=filled]
+	edge [arrowhead=vee dir=forward penwidth=2]
+	start [label=Start fillcolor=green shape=diamond style=filled]
+	process [label=Process fillcolor=yellow shape=box style=filled]
+	decision [label=Decision fillcolor=lightblue shape=diamond style=filled]
+	end [label=End fillcolor=red shape=oval style=filled]
+	start -> process [label=input color=blue dir=none penwidth=1 style=dashed]
+	process -> decision [label=yes color=green style=solid]
+	process -> end [label=no color=red style=dotted]
+	decision -> end [label=choice color=purple style=bold]
+}

@@ -1,0 +1,19 @@
+// Horn Clause Example
+digraph {
+	rankdir=LR
+	p1 [label="Predicate 1" shape=circle]
+	p2 [label="Predicate 2" shape=circle]
+	p3 [label="Predicate 3" shape=circle]
+	p4 [label="Predicate 4" shape=circle]
+	c1 [label="Consequent 1" shape=circle]
+	c2 [label="Consequent 2" shape=circle]
+	c3 [label="Consequent 3" shape=circle]
+	h1 [label="{<p0>\circ|<p1>\circ|<p2>\circ|<p3>\circ|<p4>\circ}\lhd\{<c0>\circ|<c1>\circ|<c2>\circ|<c3>\circ}" shape=none]
+	p1 -> h1 [headport=n tailport=p0]
+	p2 -> h1 [headport=n tailport=p1]
+	p3 -> h1 [headport=n tailport=p2]
+	p4 -> h1 [headport=n tailport=p3]
+	h1 -> c1 [headport=c0 tailport=s]
+	h1 -> c2 [headport=c1 tailport=s]
+	h1 -> c3 [headport=c2 tailport=s]
+}

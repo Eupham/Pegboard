@@ -1,0 +1,8 @@
+digraph "Knowledge Acquisition Draft" {
+	layout=dot nodesep=1.5 rankdir=LR ranksep=2.0 splines=ortho
+	Redis [shape=square]
+	"Discord Bot" [shape=square]
+	Knowledge [shape=square]
+	Redis -> "Discord Bot"
+	"Discord Bot" -> Knowledge
+}

@@ -1,0 +1,25 @@
+// Game Theory Model
+digraph {
+	rankdir=LR
+	entity [label="Entities
+(Game Players)" shape=ellipse]
+	team [label="Teams
+(Parties)" shape=diamond]
+	objective [label="Objectives
+(Set of Actions towards a Desired/Forecast Goal/Outcome
+with Results)" shape=box]
+	event [label="Events
+(Where Teams Participate)" shape=octagon]
+	entity -> team [label="participates in"]
+	team -> event [label="participates in"]
+	team -> objective [label=has]
+	event -> objective [label=has]
+	graph [fontsize=20 label=Legend]
+	l1 [label=Entity fontsize=16 shape=none]
+	l2 [label=Team fontsize=16 shape=none]
+	l3 [label=Objective fontsize=16 shape=none]
+	l4 [label=Event fontsize=16 shape=none]
+	l1 -> l2 [label="participates in"]
+	l2 -> l3 [label=has]
+	l2 -> l4 [label="participates in"]
+}

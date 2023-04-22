@@ -1,0 +1,8 @@
+// Redis to Discord to Knowledge
+digraph {
+	redis [label=Redis]
+	bot [label="Discord Bot"]
+	knowledge [label=Knowledge]
+	redis -> bot
+	bot -> knowledge
+}
