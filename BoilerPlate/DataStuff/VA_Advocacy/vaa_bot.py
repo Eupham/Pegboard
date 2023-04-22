@@ -1,6 +1,7 @@
 #vaa_bot.py
 import discord
 import EntityIO
+import configparser
 
 class DiscordBot:
     def __init__(self, token):
@@ -61,5 +62,9 @@ class DiscordBot:
         self.client.run(self.token)
 
 if __name__ == "__main__":
-    bot = DiscordBot('MTA5OTMyMzI2NTkxNjM1ODc1Ng.GKIOnA.40_YLgzQVpR5Cb9fqYaEjIfVbGsIBnZ3i0kygc')
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    token = config.get('discord', 'token')
+    print(token)
+    bot = DiscordBot(token)
     bot.run()
