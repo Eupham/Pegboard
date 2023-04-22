@@ -1,9 +1,10 @@
-/BubbleGum
-/Ducttape
-/BoilerPlate/MobileDev/HelloWorld/*
-/BoilerPlate/MobileDev/HelloWorld/node_modules!app/build/outputs/apk/debug/app-debug.apk
+BubbleGum
+Ducttape
+BoilerPlate/MobileDev/HelloWorld/*
+BoilerPlate/MobileDev/HelloWorld/node_modules!app/build/outputs/apk/debug/app-debug.apk
 *.json
 *.iso
 *.env
 *.log
-/BoilerPlate/DataStuff/VA_Advocacy/config.ini
+BoilerPlate/DataStuff/VA_Advocacy/config.ini
+BoilerPlate/DataStuff/VA_Advocacy/config.ini
