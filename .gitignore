@@ -1,7 +1,5 @@
 BubbleGum
 Ducttape
-BoilerPlate/MobileDev/HelloWorld/*
-BoilerPlate/MobileDev/HelloWorld/node_modules!app/build/outputs/apk/debug/app-debug.apk
 *.json
 *.iso
 *.env
