@@ -22,10 +22,11 @@ class AudioTranscription:
         transcription = self.processor.decode(predicted_ids[0])
         return transcription
  
-if __name__ == '__main__':
-    # Initialize AudioTranscription object with the desired Wav2Vec2 model
-    audio_transcription = AudioTranscription('facebook/wav2vec2-large-960h-lv60-self')
 
-    # Transcribe an audio file and print the result
-    transcription = audio_transcription.transcribe_audio('output.wav')
-    print(transcription)
+if __name__ == '__main__':
+    output_folder = Path('output')
+    for audio_file in output_folder.glob('recording_*.wav'):
+        audio_transcription = AudioTranscription('facebook/wav2vec2-large-960h-lv60-self')
+        transcription = audio_transcription.transcribe_audio(str(audio_file))
+        with open('transcripts.txt', 'a') as f:
+            f.write(transcription + '\n')

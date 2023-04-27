@@ -1,4 +1,5 @@
 #record.py
+#sudo apt-get install portaudio19-dev
 
 import pyaudio
 import wave
@@ -55,6 +56,23 @@ class AudioRecorder:
 
         print("* done recording")
 
+from pathlib import Path
+
 if __name__ == '__main__':
-    recorder = AudioRecorder()
-    recorder.record_audio()
+    # Create the output directory if it doesn't already exist
+    Path("output").mkdir(exist_ok=True)
+
+    # Record audio until the escape key is pressed
+    i = 0
+    while True:
+        # Generate a unique filename for this recording
+        filename = f"recording_{i}.wav"
+        filepath = Path("output") / filename
+        recorder = AudioRecorder()
+
+        # Record audio and save it to the output directory
+        recorder.wave_output_filename = str(filepath)
+        recorder.record_audio()
+
+        print(f"Recording {i+1} complete. File saved to {filepath}")
+        i += 1

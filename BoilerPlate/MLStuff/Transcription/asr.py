@@ -77,13 +77,49 @@ class AudioTranscription:
         predicted_ids = torch.argmax(logits, dim=-1)
         transcription = self.processor.decode(predicted_ids[0])
         return transcription
- 
-if __name__ == '__main__':
-    recorder = AudioRecorder()
-    recorder.record_audio()
-    # Initialize AudioTranscription object with the desired Wav2Vec2 model
-    audio_transcription = AudioTranscription('facebook/wav2vec2-large-960h-lv60-self')
+    
+import queue
+import threading
+import time
 
-    # Transcribe an audio file and print the result
-    transcription = audio_transcription.transcribe_audio('output.wav')
-    print(transcription)
+if __name__ == '__main__':
+    output_folder = Path('output')
+    file_queue = queue.Queue()
+
+    def record():
+        i = 0
+        while True:
+            # Generate a unique filename for this recording
+            filename = f"recording_{i}.wav"
+            filepath = Path("output") / filename
+            recorder = AudioRecorder()
+
+            # Record audio and save it to the output directory
+            recorder.wave_output_filename = str(filepath)
+            recorder.record_audio()
+
+            file_queue.put(str(filepath))
+            i += 1
+
+    def transcribe():
+        while True:
+            if not file_queue.empty():
+                audio_file = file_queue.get()
+                audio_transcription = AudioTranscription('facebook/wav2vec2-large-960h-lv60-self')
+                transcription = audio_transcription.transcribe_audio(audio_file)
+                with open('transcripts.txt', 'a') as f:
+                    f.write(transcription + '\n')
+                
+            # Limit the number of recordings in the queue to avoid excessive memory usage
+            if file_queue.qsize() > 10:
+                time.sleep(5) # Wait for 5 seconds before checking the queue again
+
+    
+    record_thread = threading.Thread(target=record)
+    transcribe_thread = threading.Thread(target=transcribe)
+
+    record_thread.start()
+    transcribe_thread.start()
+
+    while True:
+        time.sleep(1)
