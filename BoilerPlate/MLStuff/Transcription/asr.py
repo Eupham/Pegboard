@@ -84,6 +84,7 @@ import time
 
 if __name__ == '__main__':
     output_folder = Path('output')
+    output_folder.mkdir(exist_ok=True)
     file_queue = queue.Queue()
 
     def record():
@@ -92,6 +93,7 @@ if __name__ == '__main__':
             # Generate a unique filename for this recording
             filename = f"recording_{i}.wav"
             filepath = Path("output") / filename
+            
             recorder = AudioRecorder()
 
             # Record audio and save it to the output directory

@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
         # Record audio and save it to the output directory
         recorder.wave_output_filename = str(filepath)
+        recorder.record_seconds = 15
         recorder.record_audio()
 
         print(f"Recording {i+1} complete. File saved to {filepath}")

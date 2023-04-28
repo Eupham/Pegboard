@@ -1,4 +1,6 @@
 #transcribe.py
+#microsoft/speecht5_asr
+#facebook/wav2vec2-large-960h-lv60-self
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import torch
 import torchaudio
@@ -8,7 +10,7 @@ from pathlib import Path
 class AudioTranscription:
     def __init__(self, model_name):
         self.processor = Wav2Vec2Processor.from_pretrained(model_name)
-        self.model = Wav2Vec2ForCTC.from_pretrained(model_name, from_tf=False)
+        self.model = Wav2Vec2ForCTC.from_pretrained(model_name)
 
         
     def transcribe_audio(self, audio_file):
