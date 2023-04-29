@@ -1,0 +1,31 @@
+digraph {
+	layout=dot rankdir=LR
+	b1 [label=Customer shape=box]
+	b2 [label=CRM pos="0,1!" shape=box]
+	middle [label="MIS & DSS" pos="-1,0!" shape=box]
+	subgraph cluster_erp_fo {
+		erp_fo [label="Front-Office ERP" shape=none]
+		erp_fo_1 [label="Marketing Information System" shape=box]
+		erp_fo_2 [label="Sales Information System" shape=box]
+		erp_fo_3 [label="Customer Management Information System" shape=box]
+	}
+	subgraph cluster_erp_bo {
+		erp_bo [label="Back-Office ERP" shape=none]
+		erp_bo_1 [label=HRIS shape=box]
+		erp_bo_2 [label="Financial Information System" shape=box]
+		erp_bo_3 [label="Manufacturing Information System" shape=box]
+		erp_bo_4 [label="Inventory System" shape=box]
+	}
+	b3 [label=SCM pos="2,0!" shape=box]
+	b4 [label=Suppliers pos="2,1!" shape=box]
+	d1 [label="Front-Office" pos="-1,0!" shape=diamond]
+	d2 [label="Back-Office" pos="2,0!" shape=diamond]
+	d1 -> b1
+	d1 -> b2
+	d1 -> middle
+	d1 -> erp_fo
+	d2 -> middle
+	d2 -> erp_bo
+	d2 -> b3
+	d2 -> b4
+}
