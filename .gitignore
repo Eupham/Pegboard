@@ -3,5 +3,10 @@ Ducttape
 *.json
 *.iso
 *.env
+*.ini
 *.log
 BoilerPlate/DataStuff/VA_Advocacy/config.ini
+BoilerPlate/DataStuff/Budget/config.ini
+*.xml
+*.htm*
+*.pdf
